@@ -2027,12 +2027,11 @@ class BaseDeckGLViz(BaseViz):
         try:
             if isLatLong:
                 point = Point(coords)
-                return (point.latitude, point.longitude)
             else:
                 latlongStr = ",".join(coords.split(",")[::-1])
                 point = Point(latlongStr)
 
-                return (point.longitude, point.latitude)
+            return (point.longitude, point.latitude)
 
         except Exception as ex:
             raise SpatialException(
@@ -2075,8 +2074,8 @@ class BaseDeckGLViz(BaseViz):
             df[key] = df[spatial.get("geohashCol")].map(self.reverse_geohash_decode)
             del df[spatial.get("geohashCol")]
 
-        if spatial.get("reverseCheckbox"):
-            self.reverse_latlong(df, key)
+            if spatial.get("reverseCheckbox"):
+                self.reverse_latlong(df, key)
 
         if df.get(key) is None:
             raise NullValueException(
