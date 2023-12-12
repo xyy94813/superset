@@ -2019,15 +2019,24 @@ class BaseDeckGLViz(BaseViz):
 
     @staticmethod
     @deprecated(deprecated_in="3.0")
-    def parse_coordinates(latlong: Any) -> tuple[float, float] | None:
-        if not latlong:
+    def parse_coordinates(
+        coords: Any, isLatLong: bool = True
+    ) -> tuple[float, float] | None:
+        if not coords:
             return None
         try:
-            point = Point(latlong)
-            return (point.latitude, point.longitude)
+            if isLatLong:
+                point = Point(coords)
+                return (point.latitude, point.longitude)
+            else:
+                latlongStr = ",".join(coords.split(",")[::-1])
+                point = Point(latlongStr)
+
+                return (point.longitude, point.latitude)
+
         except Exception as ex:
             raise SpatialException(
-                _(f"Invalid spatial point encountered: {latlong}")
+                _(f"Invalid spatial point encountered: {coords}")
             ) from ex
 
     @staticmethod
@@ -2056,7 +2065,11 @@ class BaseDeckGLViz(BaseViz):
             )
         elif spatial.get("type") == "delimited":
             lon_lat_col = spatial.get("lonlatCol")
-            df[key] = df[lon_lat_col].apply(self.parse_coordinates)
+            df[key] = df[lon_lat_col].apply(
+                lambda longlat: self.parse_coordinates(
+                    longlat, bool(spatial.get("reverseCheckbox"))
+                )
+            )
             del df[lon_lat_col]
         elif spatial.get("type") == "geohash":
             df[key] = df[spatial.get("geohashCol")].map(self.reverse_geohash_decode)
