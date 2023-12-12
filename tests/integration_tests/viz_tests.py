@@ -894,6 +894,15 @@ class TestBaseDeckGLViz(SupersetTestCase):
         coord = viz_instance.parse_coordinates("113.21,1.23", False)
         self.assertEqual(coord, (113.21, 1.23))
 
+        coord = viz_instance.parse_coordinates("113.21 1.23", False)
+        self.assertEqual(coord, (113.21, 1.23))
+
+        coord = viz_instance.parse_coordinates("113.21;1.23", False)
+        self.assertEqual(coord, (113.21, 1.23))
+
+        coord = viz_instance.parse_coordinates("+113.21 W 1.23 N", False)
+        self.assertEqual(coord, (113.21, 1.23))
+
         self.assertEqual(viz_instance.parse_coordinates(None), None)
 
         self.assertEqual(viz_instance.parse_coordinates(""), None)

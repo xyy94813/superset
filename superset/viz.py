@@ -104,6 +104,46 @@ METRIC_KEYS = [
 ]
 
 
+import re
+
+from geopy.format import DEGREE, DOUBLE_PRIME, PRIME
+
+LNG_LAT_POINT_PATTERN = re.compile(
+    r"""
+    .*?
+    (?P<longitude>
+      (?P<longitude_direction_front>[EW])?[ ]*
+      (?P<longitude_degrees>[+-]?{FLOAT})(?:[{DEGREE}D\*\u00B0\s][ ]*
+      (?:(?P<longitude_arcminutes>{FLOAT})[{PRIME}'m][ ]*)?
+      (?:(?P<longitude_arcseconds>{FLOAT})[{DOUBLE_PRIME}"s][ ]*)?
+      )?(?P<longitude_direction_back>[EW])?)
+    {SEP}
+    (?P<latitude>
+      (?P<latitude_direction_front>[NS])?[ ]*
+        (?P<latitude_degrees>[+-]?{FLOAT})(?:[{DEGREE}D\*\u00B0\s][ ]*
+        (?:(?P<latitude_arcminutes>{FLOAT})[{PRIME}'m][ ]*)?
+        (?:(?P<latitude_arcseconds>{FLOAT})[{DOUBLE_PRIME}"s][ ]*)?
+        )?(?P<latitude_direction_back>[NS])?)(?:
+    {SEP}
+      (?P<altitude>
+        (?P<altitude_distance>[+-]?{FLOAT})[ ]*
+        (?P<altitude_units>km|m|mi|ft|nm|nmi)))?
+    \s*$
+""".format(
+        FLOAT=r"\d+(?:\.\d+)?",
+        DEGREE=DEGREE,
+        PRIME=PRIME,
+        DOUBLE_PRIME=DOUBLE_PRIME,
+        SEP=r"\s*[,;/\s]\s*",
+    ),
+    re.VERBOSE | re.UNICODE,
+)
+
+
+class LngLatPoint(Point):
+    POINT_PATTERN = LNG_LAT_POINT_PATTERN
+
+
 class BaseViz:  # pylint: disable=too-many-public-methods
 
     """All visualizations derive this base class"""
@@ -2028,8 +2068,7 @@ class BaseDeckGLViz(BaseViz):
             if isLatLong:
                 point = Point(coords)
             else:
-                latlongStr = ",".join(coords.split(",")[::-1])
-                point = Point(latlongStr)
+                point = LngLatPoint(coords)
 
             return (point.longitude, point.latitude)
 
