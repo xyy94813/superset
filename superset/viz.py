@@ -2066,12 +2066,12 @@ class BaseDeckGLViz(BaseViz):
     @staticmethod
     @deprecated(deprecated_in="3.0")
     def parse_coordinates(
-        coords: Any, isLatLong: bool = True
+        coords: Any, is_lat_long: bool = True
     ) -> tuple[float, float] | None:
         if not coords:
             return None
         try:
-            if isLatLong:
+            if is_lat_long:
                 point = Point(coords)
             else:
                 point = LngLatPoint(coords)
