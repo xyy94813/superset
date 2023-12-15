@@ -104,6 +104,7 @@ METRIC_KEYS = [
     "size",
 ]
 
+
 LNG_LAT_POINT_PATTERN = re.compile(
     r"""
     .*?
@@ -137,6 +138,15 @@ LNG_LAT_POINT_PATTERN = re.compile(
 
 
 class LngLatPoint(Point):
+    """
+    Point method "from_string" implement base on Point.POINT_PATTERN.
+    Override it to supported "lng,lat,alt" string.
+
+    LNG_LAT_POINT_PATTERN implementation references Point.POINT_PATTERN
+
+    You can understand it by regex group name
+    """
+
     POINT_PATTERN = LNG_LAT_POINT_PATTERN
 
 
