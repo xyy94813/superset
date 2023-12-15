@@ -41,6 +41,7 @@ from dateutil import relativedelta as rdelta
 from deprecation import deprecated
 from flask import request
 from flask_babel import lazy_gettext as _
+from geopy.format import DEGREE, DOUBLE_PRIME, PRIME
 from geopy.point import Point
 from pandas.tseries.frequencies import to_offset
 
@@ -102,11 +103,6 @@ METRIC_KEYS = [
     "y",
     "size",
 ]
-
-
-import re
-
-from geopy.format import DEGREE, DOUBLE_PRIME, PRIME
 
 LNG_LAT_POINT_PATTERN = re.compile(
     r"""
