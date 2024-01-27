@@ -41,7 +41,6 @@ from dateutil import relativedelta as rdelta
 from deprecation import deprecated
 from flask import request
 from flask_babel import lazy_gettext as _
-from geopy.format import DEGREE, DOUBLE_PRIME, PRIME
 from geopy.point import Point
 from pandas.tseries.frequencies import to_offset
 
@@ -81,6 +80,7 @@ from superset.utils.core import (
     simple_filter_to_adhoc,
 )
 from superset.utils.date_parser import get_since_until, parse_past_timedelta
+from superset.utils.geopy_extensions import LngLatPoint
 from superset.utils.hashing import md5_sha_from_str
 
 if TYPE_CHECKING:
@@ -103,51 +103,6 @@ METRIC_KEYS = [
     "y",
     "size",
 ]
-
-
-LNG_LAT_POINT_PATTERN = re.compile(
-    r"""
-    .*?
-    (?P<longitude>
-      (?P<longitude_direction_front>[EW])?[ ]*
-      (?P<longitude_degrees>[+-]?{FLOAT})(?:[{DEGREE}D\*\u00B0\s][ ]*
-      (?:(?P<longitude_arcminutes>{FLOAT})[{PRIME}'m][ ]*)?
-      (?:(?P<longitude_arcseconds>{FLOAT})[{DOUBLE_PRIME}"s][ ]*)?
-      )?(?P<longitude_direction_back>[EW])?)
-    {SEP}
-    (?P<latitude>
-      (?P<latitude_direction_front>[NS])?[ ]*
-        (?P<latitude_degrees>[+-]?{FLOAT})(?:[{DEGREE}D\*\u00B0\s][ ]*
-        (?:(?P<latitude_arcminutes>{FLOAT})[{PRIME}'m][ ]*)?
-        (?:(?P<latitude_arcseconds>{FLOAT})[{DOUBLE_PRIME}"s][ ]*)?
-        )?(?P<latitude_direction_back>[NS])?)(?:
-    {SEP}
-      (?P<altitude>
-        (?P<altitude_distance>[+-]?{FLOAT})[ ]*
-        (?P<altitude_units>km|m|mi|ft|nm|nmi)))?
-    \s*$
-""".format(
-        FLOAT=r"\d+(?:\.\d+)?",
-        DEGREE=DEGREE,
-        PRIME=PRIME,
-        DOUBLE_PRIME=DOUBLE_PRIME,
-        SEP=r"\s*[,;/\s]\s*",
-    ),
-    re.VERBOSE | re.UNICODE,
-)
-
-
-class LngLatPoint(Point):
-    """
-    Point method "from_string" implement base on Point.POINT_PATTERN.
-    Override it to supported "lng,lat,alt" string.
-
-    LNG_LAT_POINT_PATTERN implementation references Point.POINT_PATTERN
-
-    You can understand it by regex group name
-    """
-
-    POINT_PATTERN = LNG_LAT_POINT_PATTERN
 
 
 class BaseViz:  # pylint: disable=too-many-public-methods
